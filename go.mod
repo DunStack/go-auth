@@ -5,6 +5,8 @@ go 1.22.4
 require (
 	github.com/dunstack/grapher v0.2.0
 	github.com/uptrace/bun v1.2.3
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
+	golang.org/x/oauth2 v0.23.0
 )
 
 require (

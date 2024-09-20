@@ -1,0 +1,16 @@
+type Query {
+  strategies: [Strategy!]!
+}
+
+interface Strategy {
+  type: StrategyType!
+}
+
+type StrategyOAuth implements Strategy {
+  type: StrategyType!
+  providers: [String!]!
+}
+
+enum StrategyType {
+  OAUTH
+}
