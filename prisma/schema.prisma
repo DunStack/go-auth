@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Identity {
+  id Int @id @default(autoincrement())
+
+  credentials Credential[]
+
+  @@map("identities")
+}
+
+enum CredentialType {
+  OAUTH
+}
+
+model Credential {
+  id             Int            @id @default(autoincrement())
+  identityId     Int            @map("identity_id")
+  credentialType CredentialType @map("credential_type")
+  credentialId   Int            @map("credential_id")
+
+  identity Identity @relation(fields: [identityId], references: [id])
+
+  @@unique([credentialType, credentialId])
+  @@map("credentials")
+}
+
+model CredentialOAuth {
+  id       Int    @id @default(autoincrement())
+  provider String
+  uid      String
+
+  @@unique([provider, uid])
+  @@map("credentials_oauth")
+}
