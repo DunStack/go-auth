@@ -7,25 +7,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var _ bun.BeforeInsertHook = new(CredentialPassword)
-var _ bun.BeforeUpdateHook = new(CredentialPassword)
+var _ bun.BeforeAppendModelHook = new(CredentialPassword)
 
 type CredentialPassword struct {
-	bun.BaseModel `bun:"table:credentials_password"`
+	bun.BaseModel `bun:"table:credentials_password,alias:cp"`
 
 	ID       int `bun:",pk,autoincrement"`
 	Password string
 }
 
-func (c *CredentialPassword) BeforeInsert(ctx context.Context, query *bun.InsertQuery) error {
-	return c.bscryptPassword()
-}
-
-func (c *CredentialPassword) BeforeUpdate(ctx context.Context, query *bun.UpdateQuery) error {
-	if c.Password == "" {
-		return nil
+func (c *CredentialPassword) BeforeAppendModel(ctx context.Context, query bun.Query) error {
+	switch query.(type) {
+	case *bun.InsertQuery, *bun.UpdateQuery:
+		return c.bscryptPassword()
 	}
-	return c.bscryptPassword()
+	return nil
 }
 
 func (c *CredentialPassword) bscryptPassword() error {

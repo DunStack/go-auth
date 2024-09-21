@@ -3,7 +3,13 @@ type Query {
 }
 
 type Mutation {
-  signUp(input: SignUpInput!): Identity!
+  signUp(input: PasswordInput!): Identity!
+  signInWithPassword(input: PasswordInput!): Token!
+}
+
+type Token {
+  type: String!
+  idToken: String!
 }
 
 type Identity {
@@ -28,7 +34,7 @@ enum StrategyType {
   PASSWORD
 }
 
-input SignUpInput {
+input PasswordInput {
   email: String
   username: String
   phone: String
