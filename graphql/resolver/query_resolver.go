@@ -3,12 +3,12 @@ package resolver
 import "github.com/dunstack/go-auth"
 
 type queryResolver struct {
-	cfg *auth.Config
+	app *auth.App
 }
 
 func (c *queryResolver) Strategies() []strategyResolver {
 	var strategies []strategyResolver
-	for _, s := range c.cfg.Strategies {
+	for _, s := range c.app.Strategies {
 		strategies = append(strategies, strategyResolver{s})
 	}
 	return strategies

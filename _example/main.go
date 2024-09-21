@@ -13,7 +13,8 @@ func main() {
 	log.Println("start is starting ...")
 	defer log.Println("server stopped")
 
-	cfg := &auth.Config{
+	app := &auth.App{
+		DSN: "postgresql://postgres:knlP5T1pK67c6JBd@laudably-lenient-fennec.data-1.use1.tembo.io:5432/postgres?sslmode=require",
 		Strategies: []strategy.Strategy{
 			&strategy.StrategyPassword{},
 			&strategy.StrategyOAuth{
@@ -21,7 +22,7 @@ func main() {
 			},
 		},
 	}
-	http.Handle("/graphql", graphql.NewHandler(cfg, graphql.HandlerOptions{
+	http.Handle("/graphql", graphql.NewHandler(app, graphql.HandlerOptions{
 		Explorer: "static/graphiql.html",
 	}))
 

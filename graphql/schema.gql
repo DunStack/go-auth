@@ -2,6 +2,14 @@ type Query {
   strategies: [Strategy!]!
 }
 
+type Mutation {
+  signUp(input: SignUpInput!): Identity!
+}
+
+type Identity {
+  id: ID!
+}
+
 interface Strategy {
   type: StrategyType!
 }
@@ -18,4 +26,11 @@ type StrategyPassword implements Strategy {
 enum StrategyType {
   OAUTH
   PASSWORD
+}
+
+input SignUpInput {
+  email: String
+  username: String
+  phone: String
+  password: String!
 }

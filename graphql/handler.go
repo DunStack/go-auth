@@ -12,8 +12,8 @@ import (
 //go:embed schema.gql
 var schemaString string
 
-func NewHandler(cfg *auth.Config, opts HandlerOptions) *GraphQLHandler {
-	schema := graphql.MustParseSchema(schemaString, &resolver.RootResolver{Config: cfg})
+func NewHandler(app *auth.App, opts HandlerOptions) *GraphQLHandler {
+	schema := graphql.MustParseSchema(schemaString, resolver.NewRootResolver(app))
 	var grapherOpts []grapher.HandlerOption
 
 	if e := opts.Explorer; e != "" {
