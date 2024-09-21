@@ -14,7 +14,10 @@ datasource db {
 }
 
 model Identity {
-  id Int @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
+  username String? @unique
+  email    String? @unique
+  phone    String? @unique
 
   credentials Credential[]
 
@@ -23,6 +26,7 @@ model Identity {
 
 enum CredentialType {
   OAUTH
+  PASSWORD
 }
 
 model Credential {
@@ -44,4 +48,11 @@ model CredentialOAuth {
 
   @@unique([provider, uid])
   @@map("credentials_oauth")
+}
+
+model CredentialPassword {
+  id       Int    @id @default(autoincrement())
+  password String @db.VarChar(255)
+
+  @@map("credentials_password")
 }

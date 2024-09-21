@@ -11,6 +11,11 @@ type StrategyOAuth implements Strategy {
   providers: [String!]!
 }
 
+type StrategyPassword implements Strategy {
+  type: StrategyType!
+}
+
 enum StrategyType {
   OAUTH
+  PASSWORD
 }

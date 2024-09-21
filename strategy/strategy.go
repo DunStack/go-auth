@@ -3,7 +3,8 @@ package strategy
 type StrategyType string
 
 const (
-	StrategyTypeOAuth StrategyType = "OAUTH"
+	StrategyTypeOAuth    StrategyType = "OAUTH"
+	StrategyTypePassword StrategyType = "PASSWORD"
 )
 
 type Strategy interface {

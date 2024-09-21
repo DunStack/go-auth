@@ -15,6 +15,7 @@ func main() {
 
 	cfg := &auth.Config{
 		Strategies: []strategy.Strategy{
+			&strategy.StrategyPassword{},
 			&strategy.StrategyOAuth{
 				"github": {},
 			},
