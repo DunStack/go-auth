@@ -1,7 +1,9 @@
 package graphql
 
 import (
+	"context"
 	_ "embed"
+	"net/http"
 
 	"github.com/dunstack/go-auth"
 	"github.com/dunstack/go-auth/graphql/resolver"
@@ -17,7 +19,16 @@ func NewHandler(app *auth.App, opts HandlerOptions) *GraphQLHandler {
 	var grapherOpts []grapher.HandlerOption
 
 	if e := opts.Explorer; e != "" {
-		grapherOpts = append(grapherOpts, grapher.WithExplorer(e))
+		grapherOpts = append(grapherOpts,
+			grapher.WithExplorer(e),
+			grapher.WithContext(func(r *http.Request) context.Context {
+				return &resolver.Context{
+					Context: r.Context(),
+					App:     app,
+					Request: r,
+				}
+			}),
+		)
 	}
 
 	return &GraphQLHandler{

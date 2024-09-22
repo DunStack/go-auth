@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"crypto"
+	"crypto/ed25519"
 	"database/sql"
 
 	"github.com/dunstack/go-auth/strategy"
@@ -13,7 +13,7 @@ import (
 type App struct {
 	DSN        string
 	Strategies []strategy.Strategy
-	PrivateKey crypto.PrivateKey
+	PrivateKey ed25519.PrivateKey
 
 	db *bun.DB
 }

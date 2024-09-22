@@ -2,6 +2,7 @@ scalar Time
 
 type Query {
   strategies: [Strategy!]!
+  currentIdentity: Identity!
 }
 
 type Mutation {

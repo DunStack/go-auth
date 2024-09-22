@@ -30,7 +30,7 @@ func (r tokenResolver) IDToken() (string, error) {
 		Subject:   strconv.Itoa(r.identity.ID),
 		IssuedAt:  jwt.NewNumericDate(now),
 		NotBefore: jwt.NewNumericDate(now),
-		ExpiresAt: jwt.NewNumericDate(now.Add(1 * time.Hour)),
+		ExpiresAt: jwt.NewNumericDate(now.Add(1 * time.Second)),
 	})
 	return token.SignedString(r.app.PrivateKey)
 }

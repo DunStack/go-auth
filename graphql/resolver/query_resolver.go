@@ -1,6 +1,10 @@
 package resolver
 
-import "github.com/dunstack/go-auth"
+import (
+	"context"
+
+	"github.com/dunstack/go-auth"
+)
 
 type queryResolver struct {
 	app *auth.App
@@ -12,4 +16,12 @@ func (c *queryResolver) Strategies() []strategyResolver {
 		strategies = append(strategies, strategyResolver{s})
 	}
 	return strategies
+}
+
+func (c *queryResolver) CurrentIdentity(ctx context.Context) (*identityResolver, error) {
+	i, err := ctx.(*Context).Identity()
+	if err != nil {
+		return nil, err
+	}
+	return &identityResolver{object: i}, nil
 }
