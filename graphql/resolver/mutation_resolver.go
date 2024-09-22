@@ -60,7 +60,8 @@ func (r *mutationResolver) SignInWithPassword(
 	}
 
 	return &tokenResolver{
-		i: i,
+		app:      r.app,
+		identity: i,
 	}, nil
 }
 
