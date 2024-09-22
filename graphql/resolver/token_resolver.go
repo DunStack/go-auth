@@ -1,9 +1,6 @@
 package resolver
 
 import (
-	"strconv"
-	"time"
-
 	"github.com/dunstack/go-auth"
 	"github.com/dunstack/go-auth/model/identity"
 	"github.com/golang-jwt/jwt/v5"
@@ -12,25 +9,26 @@ import (
 
 type tokenResolver struct {
 	identity *identity.Identity
-	app      *auth.App
+	idToken  *jwt.Token
+	config   *auth.Config
 }
 
 func (tokenResolver) Type() string {
 	return "Bearer"
 }
 
-func (r tokenResolver) ExpiresAt() graphql.Time {
-	t := time.Now().Add(1 * time.Hour)
-	return graphql.Time{Time: t}
+func (r tokenResolver) ExpiresAt() (graphql.Time, error) {
+	t, err := r.idToken.Claims.GetExpirationTime()
+	if err != nil {
+		return graphql.Time{}, err
+	}
+	return graphql.Time{Time: t.Time}, nil
 }
 
 func (r tokenResolver) IDToken() (string, error) {
-	now := time.Now()
-	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, jwt.RegisteredClaims{
-		Subject:   strconv.Itoa(r.identity.ID),
-		IssuedAt:  jwt.NewNumericDate(now),
-		NotBefore: jwt.NewNumericDate(now),
-		ExpiresAt: jwt.NewNumericDate(now.Add(1 * time.Second)),
-	})
-	return token.SignedString(r.app.PrivateKey)
+	privKey, err := r.config.Token.IDToken.PrivateKey()
+	if err != nil {
+		return "", err
+	}
+	return r.idToken.SignedString(privKey)
 }

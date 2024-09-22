@@ -3,20 +3,20 @@ package resolver
 import (
 	"context"
 	"database/sql"
+	"strconv"
 
 	"github.com/dunstack/go-auth"
 	"github.com/dunstack/go-auth/graphql/resolver/input"
 	"github.com/dunstack/go-auth/model/credential"
 	credentialPassword "github.com/dunstack/go-auth/model/credential_password"
 	"github.com/dunstack/go-auth/model/identity"
-	"github.com/dunstack/go-auth/strategy"
 	"github.com/go-playground/validator/v10"
 	"github.com/uptrace/bun"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type mutationResolver struct {
-	app      *auth.App
+	config   *auth.Config
 	validate *validator.Validate
 }
 
@@ -31,7 +31,7 @@ func (r *mutationResolver) SignInWithPassword(
 	}
 
 	i := new(identity.Identity)
-	query := r.app.DB().NewSelect().Model(i)
+	query := r.config.DB.Client().NewSelect().Model(i)
 
 	if v := args.Input.Username; v != nil {
 		query = query.Where("username = ?", v)
@@ -48,7 +48,7 @@ func (r *mutationResolver) SignInWithPassword(
 	}
 
 	cp := new(credentialPassword.CredentialPassword)
-	if err := r.app.DB().NewSelect().Model(cp).
+	if err := r.config.DB.Client().NewSelect().Model(cp).
 		Join("JOIN credentials AS c on c.credential_type = 'PASSWORD' AND c.credential_id = cp.id").
 		Where("c.identity_id = ?", i.ID).
 		Scan(ctx); err != nil {
@@ -60,8 +60,9 @@ func (r *mutationResolver) SignInWithPassword(
 	}
 
 	return &tokenResolver{
-		app:      r.app,
+		config:   r.config,
 		identity: i,
+		idToken:  r.config.Token.IDToken.NewToken(strconv.Itoa(i.ID)),
 	}, nil
 }
 
@@ -78,7 +79,7 @@ func (r *mutationResolver) SignUp(
 	i := args.Input.ToIdentity()
 	cp := args.Input.ToCredentialPassword()
 
-	if err := r.app.DB().RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
+	if err := r.config.DB.Client().RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
 		if _, err := tx.NewInsert().Model(i).Exec(ctx); err != nil {
 			return err
 		}
@@ -88,7 +89,7 @@ func (r *mutationResolver) SignUp(
 
 		c := &credential.Credential{
 			IdentityId:     i.ID,
-			CredentialType: strategy.StrategyTypePassword,
+			CredentialType: auth.StrategyTypePassword,
 			CredentialID:   cp.ID,
 		}
 		if _, err := tx.NewInsert().Model(c).Exec(ctx); err != nil {

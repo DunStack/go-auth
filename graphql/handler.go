@@ -14,19 +14,15 @@ import (
 //go:embed schema.gql
 var schemaString string
 
-func NewHandler(app *auth.App, opts HandlerOptions) *GraphQLHandler {
-	schema := graphql.MustParseSchema(schemaString, resolver.NewRootResolver(app))
+func NewHandler(config *auth.Config, opts HandlerOptions) *GraphQLHandler {
+	schema := graphql.MustParseSchema(schemaString, resolver.NewRootResolver(config))
 	var grapherOpts []grapher.HandlerOption
 
 	if e := opts.Explorer; e != "" {
 		grapherOpts = append(grapherOpts,
 			grapher.WithExplorer(e),
 			grapher.WithContext(func(r *http.Request) context.Context {
-				return &resolver.Context{
-					Context: r.Context(),
-					App:     app,
-					Request: r,
-				}
+				return resolver.NewContext(config, r)
 			}),
 		)
 	}

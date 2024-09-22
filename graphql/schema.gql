@@ -1,7 +1,6 @@
 scalar Time
 
 type Query {
-  strategies: [Strategy!]!
   currentIdentity: Identity!
 }
 
@@ -18,24 +17,6 @@ type Token {
 
 type Identity {
   id: ID!
-}
-
-interface Strategy {
-  type: StrategyType!
-}
-
-type StrategyOAuth implements Strategy {
-  type: StrategyType!
-  providers: [String!]!
-}
-
-type StrategyPassword implements Strategy {
-  type: StrategyType!
-}
-
-enum StrategyType {
-  OAUTH
-  PASSWORD
 }
 
 input PasswordInput {

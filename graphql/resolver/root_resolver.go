@@ -5,27 +5,25 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func NewRootResolver(app *auth.App) *RootResolver {
+func NewRootResolver(config *auth.Config) *RootResolver {
 	return &RootResolver{
-		app:      app,
+		config:   config,
 		validate: validator.New(),
 	}
 }
 
 type RootResolver struct {
-	app      *auth.App
+	config   *auth.Config
 	validate *validator.Validate
 }
 
 func (r *RootResolver) Query() *queryResolver {
-	return &queryResolver{
-		app: r.app,
-	}
+	return &queryResolver{}
 }
 
 func (r *RootResolver) Mutation() *mutationResolver {
 	return &mutationResolver{
-		app:      r.app,
+		config:   r.config,
 		validate: r.validate,
 	}
 }

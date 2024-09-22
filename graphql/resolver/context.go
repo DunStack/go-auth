@@ -11,17 +11,25 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+func NewContext(config *auth.Config, request *http.Request) *Context {
+	return &Context{
+		Context: request.Context(),
+		config:  config,
+		request: request,
+	}
+}
+
 type Context struct {
 	context.Context
-	App     *auth.App
-	Request *http.Request
+	config  *auth.Config
+	request *http.Request
 
 	identity *identity.Identity
 }
 
 func (c *Context) Identity() (*identity.Identity, error) {
 	if c.identity == nil {
-		scheme, tokenString, ok := strings.Cut(c.Request.Header.Get("Authorization"), " ")
+		scheme, tokenString, ok := strings.Cut(c.request.Header.Get("Authorization"), " ")
 		if !ok {
 			return nil, errors.New("invalid token")
 		}
@@ -29,7 +37,11 @@ func (c *Context) Identity() (*identity.Identity, error) {
 			return nil, errors.New("invalid scheme")
 		}
 		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-			return c.App.PrivateKey.Public(), nil
+			privKey, err := c.config.Token.IDToken.PrivateKey()
+			if err != nil {
+				return nil, err
+			}
+			return privKey.Public(), nil
 		})
 		if err != nil {
 			return nil, err
@@ -41,7 +53,7 @@ func (c *Context) Identity() (*identity.Identity, error) {
 		}
 
 		i := new(identity.Identity)
-		if err := c.App.DB().NewSelect().Model(i).Where("id = ?", id).Scan(c); err != nil {
+		if err := c.config.DB.Client().NewSelect().Model(i).Where("id = ?", id).Scan(c); err != nil {
 			return nil, err
 		}
 		c.identity = i
